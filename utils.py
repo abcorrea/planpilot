@@ -57,6 +57,10 @@ def parse_arguments():
     )
     parser.add_argument( "--lp-name", default="instance.lp", type=str,
                          help="Name of intermediate logic program (lp) file."  )
+    parser.add_argument( "--encoding", default="exact", type=str,
+                         choices=['exact', 'bounded'],
+                         help="Type of ASP encoding."  )
+
     parser.add_argument(
         "--dump-output",
         action="store_true",

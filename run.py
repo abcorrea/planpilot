@@ -18,13 +18,16 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def run_plasp(domain, instance, lp, dump_output):
+def run_plasp(domain, instance, lp, encoding, dump_output):
     binary_path = "./bin/plasp"
     command = [binary_path, "translate", domain, instance]
 
     with open(lp, "w") as lp_file:
-        # First, we add the sequential encoding to it
-        with open("encodings/sequential-horizon.lp") as seq_encoding:
+        # First, we add the corresponding sequential encoding to it
+        encoding = "encodings/exact-sequential-horizon.lp"
+        if args.encoding == 'bounded':
+            encoding = "encodings/bounded-sequential-horizon.lp"
+        with open(encoding) as seq_encoding:
             lp_file.write(seq_encoding.read())
 
         # Now, we run plasp to produce the instance-specific info
@@ -90,6 +93,7 @@ if __name__ == "__main__":
         args.domain,
         args.instance,
         args.lp_name,
+        args.encoding,
         args.dump_output)
 
     logger.info("Running fasb with script script.fsb...")
