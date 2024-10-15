@@ -67,5 +67,3 @@ holds(variable(V), Value, T) :- holds(variable(V), Value, T - 1), not modified(v
 :- goal(Variable, Value), not holds(Variable, Value, horizon).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-#show occurs/2.

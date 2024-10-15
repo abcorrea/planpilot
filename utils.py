@@ -60,7 +60,12 @@ def parse_arguments():
     parser.add_argument( "--encoding", default="exact", type=str,
                          choices=['exact', 'bounded'],
                          help="Type of ASP encoding."  )
-
+    parser.add_argument(
+        "--abstract-time-steps",
+        action="store_true",
+        help="If true, it only reports that actions occur some time during the plans, but "
+        "without specifying when."
+    )
     parser.add_argument(
         "--dump-output",
         action="store_true",

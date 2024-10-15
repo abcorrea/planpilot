@@ -30,6 +30,13 @@ def run_plasp(domain, instance, lp, encoding, dump_output):
         with open(encoding) as seq_encoding:
             lp_file.write(seq_encoding.read())
 
+        time_steps_encoding = "encodings/action-per-time-step.lp"
+        if args.abstract_time_steps:
+            time_steps_encoding = "encodings/abstract-time-steps.lp"
+
+        with open(time_steps_encoding) as time_encoding:
+            lp_file.write(time_encoding.read())
+
         # Now, we run plasp to produce the instance-specific info
         process = Popen(command, stdout=lp_file, stdin=PIPE, stderr=PIPE, text=True)
 
