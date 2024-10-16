@@ -62,6 +62,8 @@ def run_fasb(lp, horizon):
 
     time = utils.get_elapsed_time()
 
+    logging.info("Starting fasb... To quit the interactive mode, use the command ':q'.")
+
     # Set up the file descriptors for select
     input_stream = sys.stdin
     output_stream = process.stdout
