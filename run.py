@@ -2,6 +2,7 @@
 import logging
 import os
 import re
+import select
 import shutil
 import sys
 import utils
@@ -9,6 +10,7 @@ import utils
 from collections import OrderedDict
 from subprocess import Popen, PIPE
 
+from time import sleep
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -51,20 +53,56 @@ def run_plasp(domain, instance, lp, encoding, dump_output):
 
 
 def run_fasb(lp, horizon):
-    binary_path = "./bin/fasb"
-    command = [binary_path, lp, "-c", f"horizon={horizon}", "0", "script.fsb"]
+    binary_path = "./bin/fasb-x86_64-unknown-linux-gnu/fasb"
+    command = [binary_path, lp, "-c", f"horizon={horizon}", "0"]
 
-    process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE, text=True)
+    # TODO Probably must be different if we want to use script version
+    process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE,
+                    text=True, universal_newlines=True, bufsize=1)
 
     time = utils.get_elapsed_time()
-    output, error = process.communicate()
 
-    if process.returncode != 0:
-        print(error)
-        exit(process.returncode)
+    # Set up the file descriptors for select
+    input_stream = sys.stdin
+    output_stream = process.stdout
+    error_stream = process.stderr
 
-    logging.info("fasb output:")
-    print(output)
+    try:
+        terminated = False
+        while not terminated:
+            # Use select to wait for input/output readiness
+            reads, _, _ = select.select([input_stream, output_stream, error_stream], [], [])
+            for stream in reads:
+                if stream == output_stream:
+                    # Read from the subprocess's output
+                    output = process.stdout.readline()
+                    if output:  # If there's output, print it
+                        print(output.strip())
+                    else:
+                        # If no output, the process might have closed
+                        logging.info("Terminating fasb.")
+                        terminated = True
+                        break
+
+                elif stream == input_stream:
+                    # Get user input
+                    user_input = input()
+                    # Send input to the subprocess
+                    process.stdin.write(user_input + '\n')
+                    process.stdin.flush()  # Ensure it's sent immediately
+
+                elif stream == error_stream:
+                    # Read from the subprocess's error stream if needed
+                    error_output = process.stderr.readline()
+                    if error_output:
+                        print("Error:", error_output.strip())
+                        terminated = True
+
+    except KeyboardInterrupt:
+        # Handle Ctrl+C to exit cleanly
+        print("Exiting...")
+        process.stdin.write('exit()\n')  # Send exit command to the subprocess
+        process.stdin.flush()
 
     logging.info(f"fasb time: {utils.get_elapsed_time() - time:.2f}s")
 
