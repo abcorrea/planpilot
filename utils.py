@@ -53,7 +53,7 @@ def parse_arguments():
         "it from the instance filename.",
     )
     parser.add_argument(
-        "--horizon", required=True, type=int, help="Horizon used by Madagascar."
+        "--horizon", required=True, type=int, help="Horizon used by clingo."
     )
     parser.add_argument( "--lp-name", default="instance.lp", type=str,
                          help="Name of intermediate logic program (lp) file."  )

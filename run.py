@@ -69,6 +69,7 @@ def run_fasb(lp, horizon):
     output_stream = process.stdout
     error_stream = process.stderr
 
+    prompts = 0
     try:
         terminated = False
         while not terminated:
@@ -83,6 +84,7 @@ def run_fasb(lp, horizon):
                     else:
                         # If no output, the process might have closed
                         logging.info("Terminating fasb.")
+                        logging.info(f"Number of prompts: {prompts}")
                         terminated = True
                         break
 
@@ -92,6 +94,7 @@ def run_fasb(lp, horizon):
                     # Send input to the subprocess
                     process.stdin.write(user_input + '\n')
                     process.stdin.flush()  # Ensure it's sent immediately
+                    prompts = prompts + 1
 
                 elif stream == error_stream:
                     # Read from the subprocess's error stream if needed
