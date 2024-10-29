@@ -10,9 +10,6 @@ Basic usage:
 
 where `HORIZON` is a positive number.
 
-For now, we only manage to use `fasb` using commands via script, no interactive
-mode. The file `script.fsb` should contain the commands you want to execute.
-
 Other arguments:
 
 - `--instance` specifies the problem/instance file.
@@ -28,3 +25,22 @@ Other arguments:
   an action was used at any given step of plan.
 - `--lp-name` specifies the name of the file used to store the logic program
   (lp) produced by `plasp`. (Default: `instance.lp`)
+
+The program then executs `fasb` using its interactive mode. The original
+`README.md` and `LICENSE` of `fasb` can be found in the directory
+`bin/fasb-x86_64-unknown-linux-gnu`.
+
+## `fasb` Commands
+
+Below is a list of the "essential" commands of `fasb`. We also comment on they related to the planning context:
+
+- `! n`: list `n` different answet sets (i.e., plans, for the encoding *with*
+  time steps). If `n` is not informed, all answer sets will be listed.
+- `#!`: count the number of answer sets.
+- `#?`: count the number of atomic facets
+- `#??`: list all facets
+- `+ FACET`: activate the facet `FACET`. Use the same string for `FACET` as
+  listed when using the command `#??`.
+- `- FACET`: deactivate the facet `FACET`. Use the same string for `FACET` as
+  listed when using the command `#??`.
+- `:q`: quit `fasb`
