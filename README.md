@@ -1,19 +1,26 @@
 # PlanPilot: Navigating the Plan Space with Facets
 
+PlanPilot is a tool that allows the user to interactively navigate on the *plan
+space* of a planning problem. For example, the user can interactively
+(de)activate *facets* of the plans, in order to understand the plan space
+better.
+
+Right now, PlanPilot supports classical planning problems described in PDDL.
+
 ## Usage
 
 Basic usage:
 
 ```
-./planpilot.py -i /path/to/instance --horizon HORIZON
+./planpilot.py -i /path/to/instance.pddl --horizon HORIZON
 ```
 
 where `HORIZON` is a positive number.
 
 Other arguments:
 
-- `--instance` specifies the problem/instance file.
-- `--domain` specifies the domain file (automatically discovered otherwise).
+- `--instance` specifies the PDDL problem/instance file.
+- `--domain` specifies the PDDL domain file (automatically discovered otherwise).
 - `--cleanup` removes the lp file specified by `--lp-name` at the end of the
   execution.
 - `--encoding` specifies the type of sequential encoding used. Valid choices are
@@ -26,16 +33,19 @@ Other arguments:
 - `--lp-name` specifies the name of the file used to store the logic program
   (lp) produced by `plasp`. (Default: `instance.lp`)
 
-The program then executs `fasb` using its interactive mode. The original
-`README.md` and `LICENSE` of `fasb` can be found in the directory
-`bin/fasb-x86_64-unknown-linux-gnu`.
+The program first encodes the planning problem as an answer set program using
+`plasp` (Gebser et al. 2011; Dimopoulos et al. 2019; [link to
+repo](https://github.com/potassco/plasp). It then executes `fasb` (Fichte et
+al. AAAI 2022; [link to repo](https://github.com/drwadu/fasb)) using its
+interactive mode. The original `README.md` and `LICENSE` of `fasb` can be found
+in the directory `bin/fasb-x86_64-unknown-linux-gnu`.
 
 ## `fasb` Commands
 
 Below is a list of the "essential" commands of `fasb`. We also comment on they related to the planning context:
 
-- `! n`: list `n` different answet sets (i.e., plans, for the encoding *with*
-  time steps). If `n` is not informed, all answer sets will be listed.
+- `! n`: list `n` different answet sets (*plans*, in our context). If `n` is not informed,
+  all answer sets will be listed.
 - `#!`: count the number of answer sets.
 - `#?`: count the number of atomic facets
 - `#??`: list all facets
@@ -44,3 +54,15 @@ Below is a list of the "essential" commands of `fasb`. We also comment on they r
 - `- FACET`: deactivate the facet `FACET`. Use the same string for `FACET` as
   listed when using the command `#??`.
 - `:q`: quit `fasb`
+
+
+## References
+
+- Yannis Dimopoulos, Martin Gebser, Patrick Lühne, Javier Romero, Torsten Schaub:
+plasp 3: Towards Effective ASP Planning. Theory Pract. Log. Program. 19(3): 477-504 (2019)
+
+- Johannes Klaus Fichte, Sarah Alice Gaggl, Dominik Rusovac.
+Rushing and Strolling among Answer Sets - Navigation Made Easy. AAAI 2022: 5651-5659
+
+- Martin Gebser, Roland Kaminski, Murat Knecht, Torsten Schaub:
+plasp: A Prototype for PDDL-Based Planning in ASP. LPNMR 2011: 358-363
