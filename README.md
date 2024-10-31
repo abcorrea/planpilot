@@ -54,15 +54,3 @@ Below is a list of the "essential" commands of `fasb`. We also comment on they r
 - `- FACET`: deactivate the facet `FACET`. Use the same string for `FACET` as
   listed when using the command `#??`.
 - `:q`: quit `fasb`
-
-
-## References
-
-- Yannis Dimopoulos, Martin Gebser, Patrick Lühne, Javier Romero, Torsten Schaub:
-plasp 3: Towards Effective ASP Planning. Theory Pract. Log. Program. 19(3): 477-504 (2019)
-
-- Johannes Klaus Fichte, Sarah Alice Gaggl, Dominik Rusovac.
-Rushing and Strolling among Answer Sets - Navigation Made Easy. AAAI 2022: 5651-5659
-
-- Martin Gebser, Roland Kaminski, Murat Knecht, Torsten Schaub:
-plasp: A Prototype for PDDL-Based Planning in ASP. LPNMR 2011: 358-363
