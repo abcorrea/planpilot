@@ -46,7 +46,7 @@ def parse_arguments():
         "-i", "--instance", required=True, help="The path to the PDDL instance file."
     )
     parser.add_argument(
-        "--domain",
+        "-d", "--domain",
         default=None,
         help="(Optional) The path to the PDDL domain file. If none is "
         "provided, the system will try to automatically deduce "
