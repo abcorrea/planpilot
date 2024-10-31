@@ -7,6 +7,8 @@ better.
 
 Right now, PlanPilot supports classical planning problems described in PDDL.
 
+Official Repository: https://github.com/abcorrea/planpilot
+
 ## Usage
 
 Basic usage:
