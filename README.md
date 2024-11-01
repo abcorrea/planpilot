@@ -44,15 +44,17 @@ in the directory `bin/fasb-x86_64-unknown-linux-gnu`.
 
 ## `fasb` Commands
 
-Below is a list of the "essential" commands of `fasb`. We also comment on they related to the planning context:
+Below is a list of the "essential" commands of `fasb`. We also comment on how they relate to the planning context:
 
-- `! n`: list `n` different answet sets (*plans*, in our context). If `n` is not informed,
-  all answer sets will be listed.
-- `#!`: count the number of answer sets.
-- `#?`: count the number of atomic facets
-- `#??`: list all facets
+- `! n`: list `n` different answer sets (*plans*, in our context). If `n` is not given,
+  all answer sets will be listed
+- `?`: display all facets
+- `#!`: count the number of answer sets (plans)
+- `#?`: count the number of atomic facets (meaningful operators)
+- `#!!`: query for each facet how much its activation decreases the number of answer sets, and the remaining number of answer sets
+- `#??`: query for each facet how much its activation decreases the number of facets, and the remaining number of facets
 - `+ FACET`: activate the facet `FACET`. Use the same string for `FACET` as
   listed when using the command `#??`.
 - `- FACET`: deactivate the facet `FACET`. Use the same string for `FACET` as
-  listed when using the command `#??`.
+  listed when using the command `#??`
 - `:q`: quit `fasb`
