@@ -43,7 +43,7 @@ def parse_arguments():
         description="Wrapper to pipeline plasp and fasb."
     )
     parser.add_argument(
-        "-i", "--instance", required=True, help="The path to the PDDL instance file."
+        "-i", "--instance", required=True, help="The path to the PDDL/SAS instance file."
     )
     parser.add_argument(
         "-d", "--domain",
@@ -78,7 +78,10 @@ def parse_arguments():
     )
 
     args = parser.parse_args()
-    if args.domain is None:
+    args.is_pddl_instance = True
+    if args.instance.endswith('.sas'):
+        args.is_pddl_instance = False
+    if args.domain is None and args.is_pddl_instance:
         args.domain = find_domain_filename(args.instance)
         if args.domain is None:
             raise RuntimeError(

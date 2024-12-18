@@ -20,9 +20,11 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def run_plasp(domain, instance, lp, encoding, dump_output):
+def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
     binary_path = "./bin/plasp"
-    command = [binary_path, "translate", domain, instance]
+    command = [binary_path, "translate", instance] # SAS+ instance
+    if pddl_instance:
+        command = [binary_path, "translate", domain, instance]
 
     with open(lp, "w") as lp_file:
         # First, we add the corresponding sequential encoding to it
@@ -131,7 +133,7 @@ if __name__ == "__main__":
 
     domain_file = args.domain
     instance_file = args.instance
-    if not os.path.isfile(domain_file):
+    if args.is_pddl_instance and not os.path.isfile(domain_file):
         sys.stderr.write("Error: Domain file does not exist.\n")
         sys.exit()
     if not os.path.isfile(instance_file):
@@ -139,12 +141,21 @@ if __name__ == "__main__":
         sys.exit()
 
     logger.info("Running plasp...")
-    run_plasp(
-        args.domain,
-        args.instance,
-        args.lp_name,
-        args.encoding,
-        args.dump_output)
+    if args.is_pddl_instance:
+        run_plasp(
+            args.domain,
+            args.instance,
+            args.lp_name,
+            args.encoding,
+            args.dump_output)
+    else:
+        run_plasp(
+            "",
+            args.instance,
+            args.lp_name,
+            args.encoding,
+            args.dump_output,
+            False)
 
     logger.info("Running fasb with script script.fsb...")
     run_fasb(
