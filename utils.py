@@ -110,6 +110,7 @@ def write_lines_to_file(file_path, lines):
 
 def is_binary_available(binary_name):
     # Check if the binary exists in the current directory
+    # TODO: change dir_binary to current_dir_binary?
     dir_binary = Path("bin/"+binary_name)
     if current_dir_binary.is_file():
         return True
