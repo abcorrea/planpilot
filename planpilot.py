@@ -6,7 +6,6 @@ import select
 import shutil
 import sys
 import utils
-from itertools import takewhile
 
 from collections import OrderedDict
 from subprocess import Popen, PIPE
@@ -134,7 +133,7 @@ def remove_lp_files():
                 logger.error(f"Error removing {file_path}: {e}")
 
 
-def translate_partial_plan_into_constraints(filename: str) -> str:
+def translate_partial_plan_into_constraints(file_path: str) -> str | None:
     # TODO: give the name of specific format
     """
     Expects actions in specific format.
@@ -150,14 +149,20 @@ def translate_partial_plan_into_constraints(filename: str) -> str:
     global PARTIAL_PLAN_DELIMITER
     PARTIAL_PLAN_DELIMITER = "(1)"
 
-    with open(filename, "r") as f:
-        actions = filter(
-            lambda x: x,
-            map(lambda x: x.strip(), f.read().split(PARTIAL_PLAN_DELIMITER)),
-        )
-        return "\n".join(
-            map(lambda t: translate_action_to_constraint(*t[::-1]), enumerate(actions))
-        )
+    try:
+        with open(file_path, "r") as f:
+            actions = filter(
+                lambda x: x,
+                map(lambda x: x.strip(), f.read().split(PARTIAL_PLAN_DELIMITER)),
+            )
+            return "\n".join(
+                map(
+                    lambda t: translate_action_to_constraint(*t[::-1]),
+                    enumerate(actions),
+                )
+            )
+    except Exception as e:
+        logger.error(f"could not read partial plan '{file_path}': {e}")
 
 
 def translate_action_to_constraint(action: str, at: int) -> str:
