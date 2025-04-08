@@ -43,8 +43,8 @@ def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
 
         if args.partial_plan:
             logger.info(f"Using partial plan '{args.partial_plan}'...")
-            constraints = translate_partial_plan_into_constraints(args.partial_plan)
-            lp_file.write("%%%%%%% partial plan encoding\n" + constraints)
+            constraints: str | None = translate_partial_plan_into_constraints(args.partial_plan)
+            lp_file.write("\n%%%%%%% partial plan encoding\n" + constraints + "\n")
 
         # Now, we run plasp to produce the instance-specific info
         process = Popen(command, stdout=lp_file, stdin=PIPE, stderr=PIPE, text=True)
@@ -62,6 +62,11 @@ def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
 def run_fasb(lp, horizon):
     binary_path = "./bin/fasb-x86_64-unknown-linux-gnu/fasb"
     command = [binary_path, lp, "-c", f"horizon={horizon}", "0"]
+
+    if args.dry:
+        logging.info("Dry startup...")
+        logging.info("To compute facets matching some regular expression 're', use the command '!? re'...")
+        command.append("--f")
 
     # TODO Probably must be different if we want to use script version
     process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE,
@@ -218,8 +223,7 @@ if __name__ == "__main__":
         args.horizon)
 
     if args.cleanup:
-        pass
-        #remove_lp_files()
+        remove_lp_files()
 
     logging.info(f"Total time: {utils.get_elapsed_time():.2f}s")
     logger.info("Done!")
