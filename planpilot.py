@@ -63,6 +63,11 @@ def run_fasb(lp, horizon):
     binary_path = "./bin/fasb-x86_64-unknown-linux-gnu/fasb"
     command = [binary_path, lp, "-c", f"horizon={horizon}", "0"]
 
+    if args.dry:
+        logging.info("Dry startup...")
+        logging.info("To compute facets matching some regular expression 're', use the command '!? re'...")
+        command.append("--f")
+
     # TODO Probably must be different if we want to use script version
     process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE,
                     text=True, universal_newlines=True, bufsize=1)
@@ -218,8 +223,7 @@ if __name__ == "__main__":
         args.horizon)
 
     if args.cleanup:
-        pass
-        #remove_lp_files()
+        remove_lp_files()
 
     logging.info(f"Total time: {utils.get_elapsed_time():.2f}s")
     logger.info("Done!")
