@@ -53,6 +53,9 @@ def parse_arguments():
         "it from the instance filename.",
     )
     parser.add_argument(
+        "--partial-plan", help="The path to the file containing partial plan."
+    )
+    parser.add_argument(
         "--horizon", required=True, type=int, help="Horizon used by clingo."
     )
     parser.add_argument( "--lp-name", default="instance.lp", type=str,
