@@ -6,6 +6,7 @@ import select
 import shutil
 import sys
 import utils
+from itertools import takewhile
 
 from collections import OrderedDict
 from subprocess import Popen, PIPE
@@ -40,6 +41,11 @@ def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
 
         with open(time_steps_encoding) as time_encoding:
             lp_file.write(time_encoding.read())
+
+        if args.partial_plan:
+            logger.info(f"Using partial plan '{args.partial_plan}'...")
+            constraints = translate_partial_plan_into_constraints(args.partial_plan)
+            lp_file.write("%%%%%%% partial plan encoding\n" + constraints)
 
         # Now, we run plasp to produce the instance-specific info
         process = Popen(command, stdout=lp_file, stdin=PIPE, stderr=PIPE, text=True)
@@ -128,6 +134,50 @@ def remove_lp_files():
                 logger.error(f"Error removing {file_path}: {e}")
 
 
+def translate_partial_plan_into_constraints(filename: str) -> str:
+    # TODO: give the name of specific format
+    """
+    Expects actions in specific format.
+
+    Example:
+    `a b c (1) d e (1)`
+    will be translated into
+    `
+    :- not occurs(action(("a","b","c")),1).
+    :- not occurs(action(("d","e")),2).
+    `
+    """
+    global PARTIAL_PLAN_DELIMITER
+    PARTIAL_PLAN_DELIMITER = "(1)"
+
+    with open(filename, "r") as f:
+        actions = filter(
+            lambda x: x,
+            map(lambda x: x.strip(), f.read().split(PARTIAL_PLAN_DELIMITER)),
+        )
+        return "\n".join(
+            map(lambda t: translate_action_to_constraint(*t[::-1]), enumerate(actions))
+        )
+
+
+def translate_action_to_constraint(action: str, at: int) -> str:
+    """
+    Translates whitespace-separated action into integrity constraint.
+
+    Example:
+    `a b c` as first action will be translated into
+    `:- not occurs(action(("a","b","c")),1).`
+    """
+    return (
+        ":- not occurs(action(("
+        + ",".join(map(lambda x: f'"{x}"', action.split(" ")))
+        + f")),{at+1})."
+    )
+
+
+
+
+
 if __name__ == "__main__":
     args = utils.parse_arguments()
 
@@ -163,7 +213,8 @@ if __name__ == "__main__":
         args.horizon)
 
     if args.cleanup:
-        remove_lp_files()
+        pass
+        #remove_lp_files()
 
     logging.info(f"Total time: {utils.get_elapsed_time():.2f}s")
     logger.info("Done!")
