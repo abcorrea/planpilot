@@ -1,16 +1,12 @@
 #! /usr/bin/env python3
 import logging
 import os
-import re
 import select
-import shutil
 import sys
 import utils
 
-from collections import OrderedDict
 from subprocess import Popen, PIPE
 
-from time import sleep
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -20,6 +16,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+# TODO: implement dump_out
 def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
     binary_path = "./bin/plasp"
     command = [binary_path, "translate", instance] # SAS+ instance
