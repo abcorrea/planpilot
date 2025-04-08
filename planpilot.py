@@ -43,8 +43,8 @@ def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
 
         if args.partial_plan:
             logger.info(f"Using partial plan '{args.partial_plan}'...")
-            constraints = translate_partial_plan_into_constraints(args.partial_plan)
-            lp_file.write("%%%%%%% partial plan encoding\n" + constraints)
+            constraints: str | None = translate_partial_plan_into_constraints(args.partial_plan)
+            lp_file.write("\n%%%%%%% partial plan encoding\n" + constraints + "\n")
 
         # Now, we run plasp to produce the instance-specific info
         process = Popen(command, stdout=lp_file, stdin=PIPE, stderr=PIPE, text=True)
