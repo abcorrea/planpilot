@@ -53,6 +53,14 @@ def parse_arguments():
         "it from the instance filename.",
     )
     parser.add_argument(
+        "--partial-plan", help="The path to the file containing partial plan."
+    )
+    parser.add_argument(
+        "--dry", 
+        help="If true, facets will not be computed at startup.",
+        action="store_true"
+    )
+    parser.add_argument(
         "--horizon", required=True, type=int, help="Horizon used by clingo."
     )
     parser.add_argument( "--lp-name", default="instance.lp", type=str,
@@ -102,6 +110,7 @@ def write_lines_to_file(file_path, lines):
 
 def is_binary_available(binary_name):
     # Check if the binary exists in the current directory
+    # TODO: change dir_binary to current_dir_binary?
     dir_binary = Path("bin/"+binary_name)
     if current_dir_binary.is_file():
         return True
