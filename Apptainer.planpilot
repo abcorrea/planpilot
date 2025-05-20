@@ -1,0 +1,42 @@
+# Stage 1: Compile the planner
+Bootstrap: docker
+From: ubuntu:24.04
+Stage: build
+
+%files
+    . tools/
+
+%post
+    ## Install all necessary dependencies.
+    apt-get update
+    DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends g++ make python3.12 libc6
+
+    ## Remove unneeded folders
+    rm -r /tools/benchmarks/ /tools/__pycache__/ /tools/bin/fasb-x86_64-unknown-linux-gnu/
+
+# Stage 2: Run the planner
+Bootstrap: docker
+From: ubuntu:24.04
+Stage: run
+
+%files from build 
+    /tools/encodings/ /tools/encodings/
+    /tools/bin/fasb_interpreter /tools/bin/fasb_interpreter
+    /tools/bin/plasp /tools/bin/plasp
+    /tools/utils.py /tools/utils.py
+    /tools/planpilot.py /tools/planpilot.py
+
+%post
+    apt-get update
+    apt-get -y install --no-install-recommends python3.12 libc6
+    rm -rf /var/lib/apt/lists/*
+
+%environment
+    export PATH=/tools/:$PATH
+
+%runscript
+    #!/bin/bash
+
+    set -euo pipefail
+
+    python3.12 /tools/planpilot.py "$@"
