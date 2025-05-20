@@ -56,9 +56,17 @@ def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
         exit(process.returncode)
 
 
-def run_fasb(lp, horizon):
-    binary_path = "./bin/fasb-x86_64-unknown-linux-gnu/fasb"
+def run_fasb(lp, horizon, script=None):
+    binary_path = "./bin/fasb-x86_64-unknown-linux-gnu/fasb" # TODO don't keep multiple versions
+
+    if script:
+        binary_path = "./bin/fasb_interpreter"
+        logger.info(f"Executing fasb script {script}...")
+
     command = [binary_path, lp, "-c", f"horizon={horizon}", "0"]
+
+    if script:
+        command.append(script)
 
     if args.dry:
         logging.info("Dry startup...")
@@ -214,10 +222,11 @@ if __name__ == "__main__":
             args.dump_output,
             False)
 
-    logger.info("Running fasb with script script.fsb...")
+    logger.info("Running fasb...")
     run_fasb(
         args.lp_name,
-        args.horizon)
+        args.horizon,
+        args.script)
 
     if args.cleanup:
         remove_lp_files()

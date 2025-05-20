@@ -75,6 +75,12 @@ def parse_arguments():
         "without specifying when."
     )
     parser.add_argument(
+        "--script",
+        type=str,
+        help="The path to the fasb script; for non-interactive mode (requires fasb built in"
+			 "interpreter configuration."
+    )
+    parser.add_argument(
         "--dump-output",
         action="store_true",
         help="dump the output of tools.",
