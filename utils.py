@@ -43,7 +43,7 @@ def parse_arguments():
         description="Wrapper to pipeline plasp and fasb."
     )
     parser.add_argument(
-        "-i", "--instance", required=True, help="The path to the PDDL instance file."
+        "-i", "--instance", required=True, help="The path to the PDDL/SAS instance file."
     )
     parser.add_argument(
         "-d", "--domain",
@@ -51,6 +51,14 @@ def parse_arguments():
         help="(Optional) The path to the PDDL domain file. If none is "
         "provided, the system will try to automatically deduce "
         "it from the instance filename.",
+    )
+    parser.add_argument(
+        "--partial-plan", help="The path to the file containing partial plan."
+    )
+    parser.add_argument(
+        "--dry", 
+        help="If true, facets will not be computed at startup.",
+        action="store_true"
     )
     parser.add_argument(
         "--horizon", required=True, type=int, help="Horizon used by clingo."
@@ -78,7 +86,10 @@ def parse_arguments():
     )
 
     args = parser.parse_args()
-    if args.domain is None:
+    args.is_pddl_instance = True
+    if args.instance.endswith('.sas'):
+        args.is_pddl_instance = False
+    if args.domain is None and args.is_pddl_instance:
         args.domain = find_domain_filename(args.instance)
         if args.domain is None:
             raise RuntimeError(
@@ -99,6 +110,7 @@ def write_lines_to_file(file_path, lines):
 
 def is_binary_available(binary_name):
     # Check if the binary exists in the current directory
+    # TODO: change dir_binary to current_dir_binary?
     dir_binary = Path("bin/"+binary_name)
     if current_dir_binary.is_file():
         return True

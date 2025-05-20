@@ -1,16 +1,12 @@
 #! /usr/bin/env python3
 import logging
 import os
-import re
 import select
-import shutil
 import sys
 import utils
 
-from collections import OrderedDict
 from subprocess import Popen, PIPE
 
-from time import sleep
 
 logging.basicConfig(
     stream=sys.stdout,
@@ -20,9 +16,12 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-def run_plasp(domain, instance, lp, encoding, dump_output):
+# TODO: implement dump_out
+def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
     binary_path = "./bin/plasp"
-    command = [binary_path, "translate", domain, instance]
+    command = [binary_path, "translate", instance] # SAS+ instance
+    if pddl_instance:
+        command = [binary_path, "translate", domain, instance]
 
     with open(lp, "w") as lp_file:
         # First, we add the corresponding sequential encoding to it
@@ -38,6 +37,11 @@ def run_plasp(domain, instance, lp, encoding, dump_output):
 
         with open(time_steps_encoding) as time_encoding:
             lp_file.write(time_encoding.read())
+
+        if args.partial_plan:
+            logger.info(f"Using partial plan '{args.partial_plan}'...")
+            constraints: str | None = translate_partial_plan_into_constraints(args.partial_plan)
+            lp_file.write("\n%%%%%%% partial plan encoding\n" + constraints + "\n")
 
         # Now, we run plasp to produce the instance-specific info
         process = Popen(command, stdout=lp_file, stdin=PIPE, stderr=PIPE, text=True)
@@ -55,6 +59,11 @@ def run_plasp(domain, instance, lp, encoding, dump_output):
 def run_fasb(lp, horizon):
     binary_path = "./bin/fasb-x86_64-unknown-linux-gnu/fasb"
     command = [binary_path, lp, "-c", f"horizon={horizon}", "0"]
+
+    if args.dry:
+        logging.info("Dry startup...")
+        logging.info("To compute facets matching some regular expression 're', use the command '!? re'...")
+        command.append("--f")
 
     # TODO Probably must be different if we want to use script version
     process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE,
@@ -126,12 +135,62 @@ def remove_lp_files():
                 logger.error(f"Error removing {file_path}: {e}")
 
 
+def translate_partial_plan_into_constraints(file_path: str) -> str | None:
+    # TODO: give the name of specific format
+    """
+    Expects actions in specific format.
+
+    Example:
+    `a b c (1) d e (1)`
+    will be translated into
+    `
+    :- not occurs(action(("a","b","c")),1).
+    :- not occurs(action(("d","e")),2).
+    `
+    """
+    global PARTIAL_PLAN_DELIMITER
+    PARTIAL_PLAN_DELIMITER = "(1)"
+
+    try:
+        with open(file_path, "r") as f:
+            actions = filter(
+                lambda x: x,
+                map(lambda x: x.strip(), f.read().split(PARTIAL_PLAN_DELIMITER)),
+            )
+            return "\n".join(
+                map(
+                    lambda t: translate_action_to_constraint(*t[::-1]),
+                    enumerate(actions),
+                )
+            )
+    except Exception as e:
+        logger.error(f"could not read partial plan '{file_path}': {e}")
+
+
+def translate_action_to_constraint(action: str, at: int) -> str:
+    """
+    Translates whitespace-separated action into integrity constraint.
+
+    Example:
+    `a b c` as first action will be translated into
+    `:- not occurs(action(("a","b","c")),1).`
+    """
+    return (
+        ":- not occurs(action(("
+        + ",".join(map(lambda x: f'"{x}"', action.split(" ")))
+        + f")),{at+1})."
+    )
+
+
+
+
+
 if __name__ == "__main__":
     args = utils.parse_arguments()
 
     domain_file = args.domain
     instance_file = args.instance
-    if not os.path.isfile(domain_file):
+    if args.is_pddl_instance and not os.path.isfile(domain_file):
         sys.stderr.write("Error: Domain file does not exist.\n")
         sys.exit()
     if not os.path.isfile(instance_file):
@@ -139,12 +198,21 @@ if __name__ == "__main__":
         sys.exit()
 
     logger.info("Running plasp...")
-    run_plasp(
-        args.domain,
-        args.instance,
-        args.lp_name,
-        args.encoding,
-        args.dump_output)
+    if args.is_pddl_instance:
+        run_plasp(
+            args.domain,
+            args.instance,
+            args.lp_name,
+            args.encoding,
+            args.dump_output)
+    else:
+        run_plasp(
+            "",
+            args.instance,
+            args.lp_name,
+            args.encoding,
+            args.dump_output,
+            False)
 
     logger.info("Running fasb with script script.fsb...")
     run_fasb(
