@@ -25,6 +25,7 @@ Stage: run
     /tools/bin/plasp /tools/bin/plasp
     /tools/utils.py /tools/utils.py
     /tools/planpilot.py /tools/planpilot.py
+    /tools/scripts/ /tools/scripts/
 
 %post
     apt-get update

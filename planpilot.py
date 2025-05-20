@@ -15,25 +15,29 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+dirname = os.path.dirname(__file__)
+
+def fix_path(path):
+    return os.path.join(dirname, path)
 
 # TODO: implement dump_out
 def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
-    binary_path = "./bin/plasp"
+    binary_path = fix_path("bin/plasp")
     command = [binary_path, "translate", instance] # SAS+ instance
     if pddl_instance:
         command = [binary_path, "translate", domain, instance]
 
     with open(lp, "w") as lp_file:
         # First, we add the corresponding sequential encoding to it
-        encoding = "encodings/exact-sequential-horizon.lp"
+        encoding = fix_path("encodings/exact-sequential-horizon.lp")
         if args.encoding == 'bounded':
-            encoding = "encodings/bounded-sequential-horizon.lp"
+            encoding = fix_path("encodings/bounded-sequential-horizon.lp")
         with open(encoding) as seq_encoding:
             lp_file.write(seq_encoding.read())
 
-        time_steps_encoding = "encodings/action-per-time-step.lp"
+        time_steps_encoding = fix_path("encodings/action-per-time-step.lp")
         if args.abstract_time_steps:
-            time_steps_encoding = "encodings/abstract-time-steps.lp"
+            time_steps_encoding = fix_path("encodings/abstract-time-steps.lp")
 
         with open(time_steps_encoding) as time_encoding:
             lp_file.write(time_encoding.read())
@@ -57,16 +61,17 @@ def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
 
 
 def run_fasb(lp, horizon, script=None):
-    binary_path = "./bin/fasb-x86_64-unknown-linux-gnu/fasb" # TODO don't keep multiple versions
+    binary_path = fix_path("bin/fasb-x86_64-unknown-linux-gnu/fasb") # TODO don't keep multiple versions
 
     if script:
-        binary_path = "./bin/fasb_interpreter"
+        binary_path = fix_path("bin/fasb_interpreter")
         logger.info(f"Executing fasb script {script}...")
 
     command = [binary_path, lp, "-c", f"horizon={horizon}", "0"]
 
     if script:
-        command.append(script)
+        full_script_path = fix_path(script)
+        command.append(full_script_path)
 
     if args.dry:
         logging.info("Dry startup...")
