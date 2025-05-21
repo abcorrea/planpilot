@@ -50,7 +50,7 @@ else:
     ]
     ENV = project.LocalEnvironment(processes=4)
     # override time limit
-    TIME_LIMIT = 60
+    TIME_LIMIT = 120
     DRIVER_OPTIONS += ["--overall-time-limit", f"{TIME_LIMIT}s"]
 
 exp = project.Experiment(environment=ENV)
@@ -166,6 +166,16 @@ for config_name, config in kstar_configs:
             project.get_cmd_with_timeout(cmd, f"{TIME_LIMIT}s"),
             time_limit=TIME_LIMIT,
             memory_limit=MEMORY_LIMIT,
+        )
+
+        # Remove all outpus.sas files
+        run.add_command(
+            "cleanup-output",
+            [
+                sys.executable,
+                "-c",
+                "import glob, os; [os.remove(f) for f in glob.glob('output.sas')]",
+            ],
         )
 
 

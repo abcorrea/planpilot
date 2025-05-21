@@ -7,10 +7,14 @@ def add_coverage(content, props):
 
     if "Total time:" in content:
         assert "fasb" in content or "Number of plans:" in content
-        props["coverage"] = 1
+        if "fasb" not in content:
+            props["coverage"] = 1
+        else:
+            "fasb return code: 0\n" in content
+            props["coverage"] = 1
 
     if "Planalyst time" in content:
-        assert "fasb" in content or "Number of plans:" in content
+        assert "fasb" not in content and "Number of plans:" in content
         props["coverage"] = 1
 
 
@@ -33,8 +37,10 @@ def add_fasb_num_facets(content, props):
     ):
         return
 
-    if "Done!" not in content:
+    if props["coverage"] != 1:
         return
+
+    assert "Done!" in content
 
     if "Executing fasb script scripts/list-facets.fasb" in content:
         match = re.search(r"#\?\n(\d+)\n", content)
