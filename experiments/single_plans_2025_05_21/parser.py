@@ -11,7 +11,9 @@ def add_plan(content, props):
 
         if line.startswith("[t="):
             break
-        props["plan"].append(line)
+        # remove cost
+        action = " ".join(line.split(" ")[:-1])
+        props["plan"].append(action)
 
     assert props["plan_length"] == len(props["plan"])
 
