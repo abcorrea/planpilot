@@ -22,8 +22,10 @@ def add_fasb_num_plans(content, props):
     if "Executing fasb script scripts/count-sols.fasb" not in content:
         return
 
-    if "Done!" not in content:
+    if props["coverage"] != 1:
         return
+
+    assert "Done!" in content
 
     match = re.search(r"#\!\n(\d+)\n", content)
     assert match
