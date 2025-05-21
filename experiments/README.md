@@ -11,11 +11,11 @@ pip install lab
 To run the experiment scripts, you need to set the following environment variables:
 
 1. **PLANNER_IMAGES**: Points to the directory containing the three planner images (`planpilot.sif`, `planalyst.sif`, `kstar.sif`, and `symk.sif`) in the form of Apptainer/Singularity images. (See the dedicated folders for more information.)
-2. **DOWNWARD_BENCHMARKS**: Points to the directory containing the [Downward benchmark set](https://github.com/aibasel/downward-benchmarks).
+2. **PLANPILOT_BENCHMARKS**: Points to the directory containing the [benchmarks](../benchmarks).
 
 You can set these environment variables using the following commands:
 
 ```bash
 export PLANNER_IMAGES="/path/to/images/"
-export DOWNWARD_BENCHMARKS="/path/to/downward/benchmarks"
+export PLANPILOT_BENCHMARKS="/path/to/benchmarks"
 ```

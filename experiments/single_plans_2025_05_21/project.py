@@ -2,8 +2,7 @@ import os
 from pathlib import Path
 import platform
 import re
-import statistics
-
+import parser
 
 from downward.experiment import FastDownwardExperiment, Experiment
 from downward.reports.scatter import ScatterPlotReport
@@ -26,7 +25,8 @@ assert (
     and TetralithEnvironment
 )
 
-PDDL_BENCHMARKS_DIR = os.environ["DOWNWARD_BENCHMARKS"]
+PLANPILOT_BENCHMARKS_DIR = os.environ["PLANPILOT_BENCHMARKS"]
+IPC_BENCHMARKS_DIR = os.environ["DOWNWARD_BENCHMARKS"]
 
 
 # Singularity Planners

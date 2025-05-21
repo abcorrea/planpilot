@@ -25,8 +25,8 @@ def set_properties(run, instance, config_name, config, config_driver_options):
 
 
 QUALITY = 1
-MEMORY_LIMIT = 6144
-MEMORY_PADDING = 6354 - MEMORY_LIMIT  # Infai_2 has 6354 MB per cpu
+MEMORY_LIMIT = 3072  # 3GiB
+MEMORY_PADDING = 3872 - MEMORY_LIMIT  # TetralithEnvironment has 3872 MB per cpu
 TIME_LIMIT = 30 * 60
 DRIVER_OPTIONS = [
     "--overall-time-limit",
@@ -35,20 +35,17 @@ DRIVER_OPTIONS = [
     f"{MEMORY_LIMIT}M",
 ]
 
+BENCHMARK_DIR = project.PLANPILOT_BENCHMARKS_DIR
+
 if project.REMOTE:
-    SUITE = project.SUITE
-    ENV = project.BaselSlurmEnvironment(
-        memory_per_cpu=f"{MEMORY_LIMIT + MEMORY_PADDING}M", partition="infai_2"
+    SUITE = ["beluga-exp-solvable"]
+    ENV = project.TetralithEnvironment(
+        memory_per_cpu=f"{MEMORY_LIMIT + MEMORY_PADDING}M",
+        extra_options="#SBATCH -A naiss2024-5-404",
     )
 else:
     SUITE = [
-        "gripper:prob01.pddl",
-        "gripper:prob02.pddl",
-        "gripper:prob10.pddl",
-        "blocks:probBLOCKS-4-0.pddl",
-        "movie:prob01.pddl",
-        "psr-small:p01-s2-n1-l2-f50.pddl",
-        "tidybot-opt11-strips:p01.pddl",
+        "beluga-exp-solvable:problem_1_s43_j5_r2_oc51_f3.pddl",
     ]
     ENV = project.LocalEnvironment(processes=4)
     # override time limit
@@ -86,7 +83,7 @@ symk_configs = [
 symk_driver_options = DRIVER_OPTIONS
 
 for config_name, config in symk_configs:
-    for instance in suites.build_suite(project.PDDL_BENCHMARKS_DIR, SUITE):
+    for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
         # Get upper bound for current instance and skip if it is unsolvable or no bound is known
         bound = bounds.get_upper_bound(instance.domain, instance.problem)
         if bound == bounds.NO_KNOWN_BOUND or bound == bounds.UNSOLVABLE:
@@ -140,7 +137,7 @@ kstar_configs = [
 kstar_driver_options = DRIVER_OPTIONS
 
 for config_name, config in kstar_configs:
-    for instance in suites.build_suite(project.PDDL_BENCHMARKS_DIR, SUITE):
+    for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
         # Get upper bound for current instance and skip if it is unsolvable or no bound is known
         bound = bounds.get_upper_bound(instance.domain, instance.problem)
         if bound == bounds.NO_KNOWN_BOUND or bound == bounds.UNSOLVABLE:
@@ -177,7 +174,7 @@ planalyst_configs = [
 ]
 
 for config_name, config in planalyst_configs:
-    for instance in suites.build_suite(project.PDDL_BENCHMARKS_DIR, SUITE):
+    for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
         # Get upper bound for current instance and skip if it is unsolvable or no bound is known
         bound = bounds.get_upper_bound(instance.domain, instance.problem)
         if bound == bounds.NO_KNOWN_BOUND or bound == bounds.UNSOLVABLE:
@@ -235,7 +232,7 @@ planpilot_configs = [
 ]
 
 for config_name, config in planpilot_configs:
-    for instance in suites.build_suite(project.PDDL_BENCHMARKS_DIR, SUITE):
+    for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
         # Get upper bound for current instance and skip if it is unsolvable or no bound is known
         bound = bounds.get_upper_bound(instance.domain, instance.problem)
         if bound == bounds.NO_KNOWN_BOUND or bound == bounds.UNSOLVABLE:
