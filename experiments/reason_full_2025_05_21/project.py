@@ -29,6 +29,10 @@ assert (
 PLANPILOT_BENCHMARKS_DIR = os.environ["PLANPILOT_BENCHMARKS"]
 IPC_BENCHMARKS_DIR = os.environ["DOWNWARD_BENCHMARKS"]
 
+REMOTE_BINDS = [
+    (os.environ["HOME"], os.environ["HOME"]),
+    ("/proj/parground/planpilot/", "/proj/parground/planpilot/"),
+]
 
 # Singularity Planners
 PLANNER_IMAGE_PATH = os.environ["PLANNER_IMAGES"]
@@ -48,9 +52,9 @@ REMOTE = NODE.endswith((".scicore.unibas.ch", ".cluster.bc2.ch")) or re.match(
 
 def get_bind_cmd():
     cmd = ["singularity", "run"]
-    home = os.environ["HOME"]
     if REMOTE:
-        return cmd + ["--bind", f"{home}:{home}"]
+        for fr, to in REMOTE_BINDS:
+            cmd += ["--bind", f"{fr}:{to}"]
     return cmd
 
 
