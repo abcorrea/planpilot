@@ -31,7 +31,7 @@ def run_fd_translator(domain, instance):
         domain,
         instance,
     ]
-    process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE, text=True)
+    process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=sys.stderr, text=True)
     time = utils.get_elapsed_time()
     _, error = process.communicate()
     logging.info(f"translator time: {utils.get_elapsed_time() - time:.2f}s")
@@ -105,67 +105,71 @@ def run_fasb(lp, horizon, script=None):
         )
         command.append("--f")
 
-    # TODO Probably must be different if we want to use script version
-    process = Popen(
-        command,
-        stdout=PIPE,
-        stdin=PIPE,
-        stderr=PIPE,
-        text=True,
-        universal_newlines=True,
-        bufsize=1,
-    )
-
     time = utils.get_elapsed_time()
+    if script:
+        logging.info("Starting fasb...")
+        process = Popen(command, stdout=sys.stdout, stderr=sys.stderr, text=True)
+    else:
+        process = Popen(
+            command,
+            stdout=PIPE,
+            stdin=PIPE,
+            stderr=PIPE,
+            text=True,
+            universal_newlines=True,
+            bufsize=1,
+        )
 
-    logging.info("Starting fasb... To quit the interactive mode, use the command ':q'.")
+        logging.info(
+            "Starting fasb... To quit the interactive mode, use the command ':q'."
+        )
 
-    # Set up the file descriptors for select
-    input_stream = sys.stdin
-    output_stream = process.stdout
-    error_stream = process.stderr
+        # Set up the file descriptors for select
+        input_stream = sys.stdin
+        output_stream = process.stdout
+        error_stream = process.stderr
 
-    prompts = 0
-    try:
-        terminated = False
-        while not terminated:
-            # Use select to wait for input/output readiness
-            reads, _, _ = select.select(
-                [input_stream, output_stream, error_stream], [], []
-            )
-            for stream in reads:
-                if stream == output_stream:
-                    # Read from the subprocess's output
-                    output = process.stdout.readline()
-                    if output:  # If there's output, print it
-                        print(output.strip())
-                    else:
-                        # If no output, the process might have closed
-                        logging.info("Terminating fasb.")
-                        logging.info(f"Number of prompts: {prompts}")
-                        terminated = True
-                        break
+        prompts = 0
+        try:
+            terminated = False
+            while not terminated:
+                # Use select to wait for input/output readiness
+                reads, _, _ = select.select(
+                    [input_stream, output_stream, error_stream], [], []
+                )
+                for stream in reads:
+                    if stream == output_stream:
+                        # Read from the subprocess's output
+                        output = process.stdout.readline()
+                        if output:  # If there's output, print it
+                            print(output.strip())
+                        else:
+                            # If no output, the process might have closed
+                            logging.info("Terminating fasb.")
+                            logging.info(f"Number of prompts: {prompts}")
+                            terminated = True
+                            break
 
-                elif stream == input_stream:
-                    # Get user input
-                    user_input = input()
-                    # Send input to the subprocess
-                    process.stdin.write(user_input + "\n")
-                    process.stdin.flush()  # Ensure it's sent immediately
-                    prompts = prompts + 1
+                    elif stream == input_stream:
+                        # Get user input
+                        user_input = input()
+                        # Send input to the subprocess
+                        process.stdin.write(user_input + "\n")
+                        process.stdin.flush()  # Ensure it's sent immediately
+                        prompts = prompts + 1
 
-                elif stream == error_stream:
-                    # Read from the subprocess's error stream if needed
-                    error_output = process.stderr.readline()
-                    if error_output:
-                        print("Error:", error_output.strip())
-                        terminated = True
+                    elif stream == error_stream:
+                        # Read from the subprocess's error stream if needed
+                        error_output = process.stderr.readline()
+                        if error_output:
+                            print("Error:", error_output.strip())
+                            terminated = True
 
-    except KeyboardInterrupt:
-        # Handle Ctrl+C to exit cleanly
-        print("Exiting...")
-        process.stdin.write("exit()\n")  # Send exit command to the subprocess
-        process.stdin.flush()
+        except KeyboardInterrupt:
+            # Handle Ctrl+C to exit cleanly
+            print("Exiting...")
+            process.stdin.write("exit()\n")  # Send exit command to the subprocess
+            process.stdin.flush()
 
     logging.info(f"fasb time: {utils.get_elapsed_time() - time:.2f}s")
 
