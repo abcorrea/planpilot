@@ -264,6 +264,16 @@ for config_name, config in planpilot_configs:
             memory_limit=MEMORY_LIMIT,
         )
 
+        # Remove all outpus.sas files
+        run.add_command(
+            "cleanup-output",
+            [
+                sys.executable,
+                "-c",
+                "import glob, os; [os.remove(f) for f in glob.glob('output.sas')]",
+            ],
+        )
+
         # Remove instance.lp file
         run.add_command(
             "cleanup-gmon",
