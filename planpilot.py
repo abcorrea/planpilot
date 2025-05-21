@@ -31,8 +31,14 @@ def run_fd_translator(domain, instance):
         domain,
         instance,
     ]
-    process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=sys.stderr, text=True)
     time = utils.get_elapsed_time()
+    process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
+    stdout, stderr = process.communicate()
+    # if stdout:
+    #     print(stdout, file=sys.stdout, end='')
+
+    if stderr:
+        print(stderr, file=sys.stderr, end="")
     _, error = process.communicate()
     logging.info(f"translator time: {utils.get_elapsed_time() - time:.2f}s")
 
@@ -108,7 +114,13 @@ def run_fasb(lp, horizon, script=None):
     time = utils.get_elapsed_time()
     if script:
         logging.info("Starting fasb...")
-        process = Popen(command, stdout=sys.stdout, stderr=sys.stderr, text=True)
+        process = Popen(command, stdout=PIPE, stderr=PIPE, text=True)
+        stdout, stderr = process.communicate()
+        if stdout:
+            print(stdout, file=sys.stdout, end="")
+
+        if stderr:
+            print(stderr, file=sys.stderr, end="")
     else:
         process = Popen(
             command,
