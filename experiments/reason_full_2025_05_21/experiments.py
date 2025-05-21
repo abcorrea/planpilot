@@ -46,10 +46,11 @@ if project.REMOTE:
 else:
     SUITE = [
         "beluga-exp-solvable:problem_1_s43_j5_r2_oc51_f3.pddl",
+        "beluga-exp-solvable:problem_32_s75_j3_r2_oc25_f3.pddl",
     ]
     ENV = project.LocalEnvironment(processes=4)
     # override time limit
-    TIME_LIMIT = 10
+    TIME_LIMIT = 60
     DRIVER_OPTIONS += ["--overall-time-limit", f"{TIME_LIMIT}s"]
 
 exp = project.Experiment(environment=ENV)

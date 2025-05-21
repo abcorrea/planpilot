@@ -17,20 +17,41 @@ logger = logging.getLogger(__name__)
 
 dirname = os.path.dirname(__file__)
 
+
 def fix_path(path):
     return os.path.join(dirname, path)
 
-# TODO: implement dump_out
+
+def run_fd_translator(domain, instance):
+    binary_path = fix_path("translate/translate.py")
+    command = [
+        "python3.12",
+        binary_path,
+        "--keep-unimportant-variables",
+        domain,
+        instance,
+    ]
+    process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE, text=True)
+    time = utils.get_elapsed_time()
+    _, error = process.communicate()
+    logging.info(f"translator time: {utils.get_elapsed_time() - time:.2f}s")
+
+    logger.info(f"translator return code: {process.returncode}")
+    if process.returncode != 0:
+        print(error)
+        exit(process.returncode)
+
+
 def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
     binary_path = fix_path("bin/plasp")
-    command = [binary_path, "translate", instance] # SAS+ instance
+    command = [binary_path, "translate", instance]  # SAS+ instance
     if pddl_instance:
         command = [binary_path, "translate", domain, instance]
 
     with open(lp, "w") as lp_file:
         # First, we add the corresponding sequential encoding to it
         encoding = fix_path("encodings/exact-sequential-horizon.lp")
-        if args.encoding == 'bounded':
+        if args.encoding == "bounded":
             encoding = fix_path("encodings/bounded-sequential-horizon.lp")
         with open(encoding) as seq_encoding:
             lp_file.write(seq_encoding.read())
@@ -44,7 +65,9 @@ def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
 
         if args.partial_plan:
             logger.info(f"Using partial plan '{args.partial_plan}'...")
-            constraints: str | None = translate_partial_plan_into_constraints(args.partial_plan)
+            constraints: str | None = translate_partial_plan_into_constraints(
+                args.partial_plan
+            )
             lp_file.write("\n%%%%%%% partial plan encoding\n" + constraints + "\n")
 
         # Now, we run plasp to produce the instance-specific info
@@ -61,7 +84,9 @@ def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
 
 
 def run_fasb(lp, horizon, script=None):
-    binary_path = fix_path("bin/fasb-x86_64-unknown-linux-gnu/fasb") # TODO don't keep multiple versions
+    binary_path = fix_path(
+        "bin/fasb-x86_64-unknown-linux-gnu/fasb"
+    )  # TODO don't keep multiple versions
 
     if script:
         binary_path = fix_path("bin/fasb_interpreter")
@@ -75,12 +100,21 @@ def run_fasb(lp, horizon, script=None):
 
     if args.dry:
         logging.info("Dry startup...")
-        logging.info("To compute facets matching some regular expression 're', use the command '!? re'...")
+        logging.info(
+            "To compute facets matching some regular expression 're', use the command '!? re'..."
+        )
         command.append("--f")
 
     # TODO Probably must be different if we want to use script version
-    process = Popen(command, stdout=PIPE, stdin=PIPE, stderr=PIPE,
-                    text=True, universal_newlines=True, bufsize=1)
+    process = Popen(
+        command,
+        stdout=PIPE,
+        stdin=PIPE,
+        stderr=PIPE,
+        text=True,
+        universal_newlines=True,
+        bufsize=1,
+    )
 
     time = utils.get_elapsed_time()
 
@@ -96,7 +130,9 @@ def run_fasb(lp, horizon, script=None):
         terminated = False
         while not terminated:
             # Use select to wait for input/output readiness
-            reads, _, _ = select.select([input_stream, output_stream, error_stream], [], [])
+            reads, _, _ = select.select(
+                [input_stream, output_stream, error_stream], [], []
+            )
             for stream in reads:
                 if stream == output_stream:
                     # Read from the subprocess's output
@@ -114,7 +150,7 @@ def run_fasb(lp, horizon, script=None):
                     # Get user input
                     user_input = input()
                     # Send input to the subprocess
-                    process.stdin.write(user_input + '\n')
+                    process.stdin.write(user_input + "\n")
                     process.stdin.flush()  # Ensure it's sent immediately
                     prompts = prompts + 1
 
@@ -128,7 +164,7 @@ def run_fasb(lp, horizon, script=None):
     except KeyboardInterrupt:
         # Handle Ctrl+C to exit cleanly
         print("Exiting...")
-        process.stdin.write('exit()\n')  # Send exit command to the subprocess
+        process.stdin.write("exit()\n")  # Send exit command to the subprocess
         process.stdin.flush()
 
     logging.info(f"fasb time: {utils.get_elapsed_time() - time:.2f}s")
@@ -195,9 +231,6 @@ def translate_action_to_constraint(action: str, at: int) -> str:
     )
 
 
-
-
-
 if __name__ == "__main__":
     args = utils.parse_arguments()
 
@@ -210,28 +243,22 @@ if __name__ == "__main__":
         sys.stderr.write("Error: Instance file does not exist.\n")
         sys.exit()
 
-    logger.info("Running plasp...")
     if args.is_pddl_instance:
-        run_plasp(
-            args.domain,
-            args.instance,
-            args.lp_name,
-            args.encoding,
-            args.dump_output)
-    else:
-        run_plasp(
-            "",
-            args.instance,
-            args.lp_name,
-            args.encoding,
-            args.dump_output,
-            False)
+        logger.info("Running translator...")
+        run_fd_translator(args.domain, args.instance)
+        args.instance = "output.sas"
+        # run_plasp(
+        #     args.domain,
+        #     args.instance,
+        #     args.lp_name,
+        #     args.encoding,
+        #     args.dump_output)
+
+    logger.info("Running plasp...")
+    run_plasp("", args.instance, args.lp_name, args.encoding, args.dump_output, False)
 
     logger.info("Running fasb...")
-    run_fasb(
-        args.lp_name,
-        args.horizon,
-        args.script)
+    run_fasb(args.lp_name, args.horizon, args.script)
 
     if args.cleanup:
         remove_lp_files()

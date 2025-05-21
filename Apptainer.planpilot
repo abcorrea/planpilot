@@ -26,6 +26,7 @@ Stage: run
     /tools/utils.py /tools/utils.py
     /tools/planpilot.py /tools/planpilot.py
     /tools/scripts/ /tools/scripts/
+    /tools/translate/ /tools/translate/
 
 %post
     apt-get update

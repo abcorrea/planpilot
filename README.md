@@ -58,3 +58,6 @@ Below is a list of the "essential" commands of `fasb`. We also comment on how th
 - `- FACET`: deactivate the facet `FACET`. Use the same string for `FACET` as
   listed when using the command `#??`
 - `:q`: quit `fasb`
+
+## Fast Downward Translator
+We utilize for grounding the [Fast Downward](https://www.fast-downward.org/latest/) translator ([files](translate)).
