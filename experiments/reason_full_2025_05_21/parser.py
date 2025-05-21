@@ -18,7 +18,7 @@ def add_fasb_num_plans(content, props):
     if "Executing fasb script scripts/count-sols.fasb" not in content:
         return
 
-    if "Terminating fasb." not in content:
+    if "Done!" not in content:
         return
 
     match = re.search(r"#\!\n(\d+)\n", content)
@@ -33,7 +33,7 @@ def add_fasb_num_facets(content, props):
     ):
         return
 
-    if "Terminating fasb." not in content:
+    if "Done!" not in content:
         return
 
     if "Executing fasb script scripts/list-facets.fasb" in content:
@@ -61,7 +61,7 @@ def add_fasb_num_facets(content, props):
         props["facet_reason"] = []
         for line in splitted_content[facet_prompt_start + 1 :]:
 
-            if "Terminating fasb." in line:
+            if "Done!" in line:
                 break
             props["facet_reason"].append(line)
 
