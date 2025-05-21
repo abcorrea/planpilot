@@ -12,7 +12,7 @@ Stage: build
     DEBIAN_FRONTEND=noninteractive apt-get -y install --no-install-recommends g++ make python3.12 libc6
 
     ## Remove unneeded folders
-    rm -r /tools/benchmarks/ /tools/__pycache__/ /tools/bin/fasb-x86_64-unknown-linux-gnu/
+    rm -r /tools/benchmarks/ /tools/__pycache__/ #/tools/bin/fasb-x86_64-unknown-linux-gnu/
 
 # Stage 2: Run the planner
 Bootstrap: docker
@@ -23,6 +23,7 @@ Stage: run
     /tools/encodings/ /tools/encodings/
     /tools/bin/fasb_interpreter /tools/bin/fasb_interpreter
     /tools/bin/plasp /tools/bin/plasp
+    /tools/bin/fasb-x86_64-unknown-linux-gnu/ /tools/bin/fasb-x86_64-unknown-linux-gnu/
     /tools/utils.py /tools/utils.py
     /tools/planpilot.py /tools/planpilot.py
     /tools/scripts/ /tools/scripts/
