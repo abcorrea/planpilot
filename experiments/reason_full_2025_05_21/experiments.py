@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import bounds
+import optimal_plans
 import project
 import parser
 import sys
@@ -85,8 +85,8 @@ symk_driver_options = DRIVER_OPTIONS
 for config_name, config in symk_configs:
     for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
         # Get upper bound for current instance and skip if it is unsolvable or no bound is known
-        bound = bounds.get_upper_bound(instance.domain, instance.problem)
-        if bound == bounds.NO_KNOWN_BOUND or bound == bounds.UNSOLVABLE:
+        bound = optimal_plans.get_optimal_plan_cost(instance.domain, instance.problem)
+        if bound is None:
             continue
 
         bound = int(bound * QUALITY)
@@ -139,8 +139,8 @@ kstar_driver_options = DRIVER_OPTIONS
 for config_name, config in kstar_configs:
     for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
         # Get upper bound for current instance and skip if it is unsolvable or no bound is known
-        bound = bounds.get_upper_bound(instance.domain, instance.problem)
-        if bound == bounds.NO_KNOWN_BOUND or bound == bounds.UNSOLVABLE:
+        bound = optimal_plans.get_optimal_plan_cost(instance.domain, instance.problem)
+        if bound is None:
             continue
 
         bound = int(bound * QUALITY)
@@ -176,8 +176,8 @@ planalyst_configs = [
 for config_name, config in planalyst_configs:
     for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
         # Get upper bound for current instance and skip if it is unsolvable or no bound is known
-        bound = bounds.get_upper_bound(instance.domain, instance.problem)
-        if bound == bounds.NO_KNOWN_BOUND or bound == bounds.UNSOLVABLE:
+        bound = optimal_plans.get_optimal_plan_cost(instance.domain, instance.problem)
+        if bound is None:
             continue
 
         bound = int(bound * QUALITY)
@@ -234,8 +234,8 @@ planpilot_configs = [
 for config_name, config in planpilot_configs:
     for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
         # Get upper bound for current instance and skip if it is unsolvable or no bound is known
-        bound = bounds.get_upper_bound(instance.domain, instance.problem)
-        if bound == bounds.NO_KNOWN_BOUND or bound == bounds.UNSOLVABLE:
+        bound = optimal_plans.get_optimal_plan_cost(instance.domain, instance.problem)
+        if bound is None:
             continue
 
         bound = int(bound * QUALITY)

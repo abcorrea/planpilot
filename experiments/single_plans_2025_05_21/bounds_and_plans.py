@@ -24,36 +24,22 @@ def get_data(raw_data):
     plans = {}
     for key in raw_data:
         entry = raw_data[key]
-        if "coverage" not in entry or entry["coverage"] != 1:
-            continue
-
         domain = entry["domain"]
         problem = entry["problem"]
-        plan_cost = int(entry["cost"])
-        plan = entry["plan"]
-
         my_key = f"{domain}:{problem}"
 
-        assert plan_cost not in bounds or bounds[my_key] == plan_cost
-        bounds[my_key] = plan_cost
-        plans[my_key] = plan
+        if "coverage" not in entry or entry["coverage"] != 1:
+            bounds[my_key] = None
+            plans[my_key] = None
+        else:
+            plan_cost = int(entry["cost"])
+            plan = entry["plan"]
+
+            assert plan_cost not in bounds or bounds[my_key] == plan_cost
+            bounds[my_key] = plan_cost
+            plans[my_key] = plan
 
     return bounds, plans
-
-
-def merge(data_lower_bound, data_higher_bound):
-    data = data_higher_bound.copy()
-
-    if data_lower_bound:
-        questionable_keys = set(data_higher_bound.keys()) - set(data_lower_bound.keys())
-        assert not questionable_keys, f"Missing keys in dict2: {questionable_keys}"
-
-    for key in data_lower_bound:
-        if key not in data_higher_bound:
-            data[key] = data_lower_bound[key]
-        assert data[key] >= data_lower_bound[key]
-        data[key] = max(data[key], data_lower_bound[key])
-    return data
 
 
 def main():
