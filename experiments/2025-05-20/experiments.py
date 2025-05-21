@@ -5,7 +5,7 @@ import project
 import parser
 import sys
 
-from check_relative import PlanNumberFilter
+from check_relative import PlanNumberFilter, FacetNumberFilter
 from downward.reports.absolute import AbsoluteReport
 from downward import suites
 
@@ -229,9 +229,9 @@ for config_name, config in planalyst_configs:
 
 # Experiments with Planpilot
 planpilot_configs = [
+    ("planpilot-count", ["--script", "scripts/count-sols.fasb"]),
     ("planpilot-list-facets", ["--script", "scripts/list-facets.fasb"]),
     ("planpilot-reason-facets", ["--script", "scripts/facet-reason.fasb"]),
-    ("planpilot-count", ["--script", "scripts/count-sols.fasb"]),
 ]
 
 for config_name, config in planpilot_configs:
@@ -266,6 +266,16 @@ for config_name, config in planpilot_configs:
             memory_limit=MEMORY_LIMIT,
         )
 
+        # Remove instance.lp file
+        run.add_command(
+            "cleanup-gmon",
+            [
+                sys.executable,
+                "-c",
+                "import glob, os; [os.remove(f) for f in glob.glob('instance.lp')]",
+            ],
+        )
+
 exp.add_step("build", exp.build)
 exp.add_step("start", exp.start_runs)
 exp.add_step("parse", exp.parse)
@@ -279,15 +289,20 @@ config_names = (
 )
 
 plan_number_filter = PlanNumberFilter()
+facet_number_filter = FacetNumberFilter()
 
 TABLE_ATTRIBUTES = [
     project.Attribute("bound", function=project.statistics.mean),
     "coverage",
     project.Attribute("num_plans", min_wins=False, function=project.statistics.mean),
+    project.Attribute("num_facets", min_wins=False, function=project.statistics.mean),
+    "facet_reason",
+    "facet_list",
     "run_dir",
     "time",
     "total_time",
     plan_number_filter.get_attribute(),
+    facet_number_filter.get_attribute(),
 ]
 
 exp.add_report(
@@ -297,6 +312,8 @@ exp.add_report(
         filter=[
             plan_number_filter.store_attribute,
             plan_number_filter.check_consistency,
+            facet_number_filter.store_attribute,
+            facet_number_filter.check_consistency,
         ],
     )
 )

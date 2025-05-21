@@ -39,3 +39,7 @@ class PlanNumberFilter(RelativeFilter):
     def __init__(self):
         super().__init__("num_plans")
 
+
+class FacetNumberFilter(RelativeFilter):
+    def __init__(self):
+        super().__init__("num_facets")
