@@ -69,7 +69,7 @@ def add_fasb_num_facets(content, props):
         props["facet_reason"] = []
         for line in splitted_content[facet_prompt_start + 1 :]:
 
-            if "Done!" in line:
+            if "INFO :::" in line:
                 break
             props["facet_reason"].append(line)
 
