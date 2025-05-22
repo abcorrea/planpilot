@@ -68,6 +68,7 @@ planpilot_configs = [
     ("planpilot-list-facets", ["--script", "scripts/list-facets.fasb"]),
     ("planpilot-reason-facets", ["--script", "scripts/facet-reason.fasb"]),
 ]
+all_configs = []
 
 for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
     # Get upper bound for current instance and skip if it is unsolvable or no bound is known
@@ -83,6 +84,7 @@ for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
     for fraction_id, fraction in enumerate(fixed_plan_fractions):
         for config_base_name, config in planpilot_configs:
             config_name = f"{config_base_name}-{fraction}"
+            all_configs.append(config_name)
 
             full_config = config[:]
             full_config += ["--horizon", str(bound)]
@@ -148,7 +150,7 @@ TABLE_ATTRIBUTES = [
     project.Attribute("bound", function=project.statistics.mean),
     "coverage",
     project.Attribute("num_plans", min_wins=False, function=project.statistics.mean),
-    project.Attribute("num_facets", min_wins=False, function=project.statistics.mean),
+    project.Attribute("num_facets", min_wins=False, function=project.statistics.median, absolute=True),
     "facet_reason",
     "facet_list",
     "run_dir",
@@ -162,5 +164,13 @@ exp.add_report(
         # filter_algorithm=config_names,
     )
 )
+# print(all_configs)
+
+# exp.add_report(
+#     AbsoluteReport(
+#         attributes=TABLE_ATTRIBUTES,
+#         filter_algorithm=[x for x in all_configs if "count" not in x],
+#     )
+# )
 
 exp.run_steps()
