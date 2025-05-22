@@ -68,22 +68,20 @@ planpilot_configs = [
     ("planpilot-reason-facets", ["--script", "scripts/facet-reason.fasb"]),
 ]
 
-
 for config_base_name, config in planpilot_configs:
     for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
+        # Get upper bound for current instance and skip if it is unsolvable or no bound is known
+        bound = optimal_plans.get_optimal_plan_cost(instance.domain, instance.problem)
+        if bound is None:
+            continue
+
+        bound = int(bound * QUALITY)
+
         constraints = plan_constraints.get_occurs_constraints(
             instance.domain, instance.problem, fixed_plan_fractions
         )
         for fraction_id, fraction in enumerate(fixed_plan_fractions):
             config_name = f"{config_base_name}-{fraction}"
-            # Get upper bound for current instance and skip if it is unsolvable or no bound is known
-            bound = optimal_plans.get_optimal_plan_cost(
-                instance.domain, instance.problem
-            )
-            if bound is None:
-                continue
-
-            bound = int(bound * QUALITY)
 
             full_config = config[:]
             full_config += ["--horizon", str(bound)]
