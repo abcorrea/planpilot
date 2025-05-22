@@ -76,6 +76,27 @@ def run_plasp(domain, instance, lp, encoding, dump_output, pddl_instance=True):
             )
             lp_file.write("\n%%%%%%% partial plan encoding\n" + constraints + "\n")
 
+        if args.add_constraints_file:
+            logger.info(
+                f"Using additional constraints of file '{args.add_constraints_file}'..."
+            )
+            try:
+                with open(args.add_constraints_file, "r") as f:
+                    constraints = f.readlines()
+                    constraints = "".join(constraints)
+                    lp_file.write(
+                        "\n%%%%%%% partial plan encoding\n" + constraints + "\n"
+                    )
+            except IOError:
+                print(
+                    f"Error: File {args.add_constraints_file} does not appear to exist."
+                )
+                exit(1)
+
+        if args.add_constraints:
+            constraints = args.add_constraints.encode().decode("unicode_escape")
+            lp_file.write("\n%%%%%%% partial plan encoding\n" + constraints + "\n")
+
         # Now, we run plasp to produce the instance-specific info
         process = Popen(command, stdout=lp_file, stdin=PIPE, stderr=PIPE, text=True)
 

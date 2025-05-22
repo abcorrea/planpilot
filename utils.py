@@ -8,6 +8,7 @@ from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+
 def get_elapsed_time():
     """
     Return the CPU time taken by the python process and its child
@@ -39,14 +40,16 @@ def find_domain_filename(task_filename):
 
 
 def parse_arguments():
-    parser = argparse.ArgumentParser(
-        description="Wrapper to pipeline plasp and fasb."
+    parser = argparse.ArgumentParser(description="Wrapper to pipeline plasp and fasb.")
+    parser.add_argument(
+        "-i",
+        "--instance",
+        required=True,
+        help="The path to the PDDL/SAS instance file.",
     )
     parser.add_argument(
-        "-i", "--instance", required=True, help="The path to the PDDL/SAS instance file."
-    )
-    parser.add_argument(
-        "-d", "--domain",
+        "-d",
+        "--domain",
         default=None,
         help="(Optional) The path to the PDDL domain file. If none is "
         "provided, the system will try to automatically deduce "
@@ -56,29 +59,44 @@ def parse_arguments():
         "--partial-plan", help="The path to the file containing partial plan."
     )
     parser.add_argument(
-        "--dry", 
+        "--add-constraints", help="String containing additional contraints.", type=str
+    )
+    parser.add_argument(
+        "--add-constraints-file",
+        help="The path to the file containing additional contraints.",
+    )
+    parser.add_argument(
+        "--dry",
         help="If true, facets will not be computed at startup.",
-        action="store_true"
+        action="store_true",
     )
     parser.add_argument(
         "--horizon", required=True, type=int, help="Horizon used by clingo."
     )
-    parser.add_argument( "--lp-name", default="instance.lp", type=str,
-                         help="Name of intermediate logic program (lp) file."  )
-    parser.add_argument( "--encoding", default="exact", type=str,
-                         choices=['exact', 'bounded'],
-                         help="Type of ASP encoding."  )
+    parser.add_argument(
+        "--lp-name",
+        default="instance.lp",
+        type=str,
+        help="Name of intermediate logic program (lp) file.",
+    )
+    parser.add_argument(
+        "--encoding",
+        default="exact",
+        type=str,
+        choices=["exact", "bounded"],
+        help="Type of ASP encoding.",
+    )
     parser.add_argument(
         "--abstract-time-steps",
         action="store_true",
         help="If true, it only reports that actions occur some time during the plans, but "
-        "without specifying when."
+        "without specifying when.",
     )
     parser.add_argument(
         "--script",
         type=str,
         help="The path to the fasb script; for non-interactive mode (requires fasb built in"
-			 "interpreter configuration."
+        "interpreter configuration.",
     )
     parser.add_argument(
         "--dump-output",
@@ -93,7 +111,7 @@ def parse_arguments():
 
     args = parser.parse_args()
     args.is_pddl_instance = True
-    if args.instance.endswith('.sas'):
+    if args.instance.endswith(".sas"):
         args.is_pddl_instance = False
     if args.domain is None and args.is_pddl_instance:
         args.domain = find_domain_filename(args.instance)
@@ -103,6 +121,7 @@ def parse_arguments():
             )
 
     return args
+
 
 def write_lines_to_file(file_path, lines):
     try:
@@ -117,7 +136,7 @@ def write_lines_to_file(file_path, lines):
 def is_binary_available(binary_name):
     # Check if the binary exists in the current directory
     # TODO: change dir_binary to current_dir_binary?
-    dir_binary = Path("bin/"+binary_name)
+    dir_binary = Path("bin/" + binary_name)
     if current_dir_binary.is_file():
         return True
     # Check if the binary is in the PATH
