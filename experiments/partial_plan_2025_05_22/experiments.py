@@ -4,6 +4,7 @@ import optimal_plans
 import plan_constraints
 import project
 import parser
+import re
 import sys
 
 from downward.reports.absolute import AbsoluteReport
@@ -19,8 +20,8 @@ def set_properties(run, instance, config_name, config, config_driver_options):
     run.set_property("domain", instance.domain)
     run.set_property("problem", instance.problem)
     run.set_property("algorithm", config_name)
-    run.set_property("component_options", config)
-    run.set_property("driver_options", config_driver_options)
+    run.set_property("component_options", config[:])
+    run.set_property("driver_options", config_driver_options[:])
     run.set_property("id", [config_name, instance.domain, instance.problem])
 
 
@@ -50,7 +51,7 @@ else:
     ]
     ENV = project.LocalEnvironment(processes=4)
     # override time limit
-    TIME_LIMIT = 20
+    TIME_LIMIT = 2
     DRIVER_OPTIONS += ["--overall-time-limit", f"{TIME_LIMIT}s"]
 
 exp = project.Experiment(environment=ENV)
@@ -68,29 +69,40 @@ planpilot_configs = [
     ("planpilot-reason-facets", ["--script", "scripts/facet-reason.fasb"]),
 ]
 
-for config_base_name, config in planpilot_configs:
-    for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
-        # Get upper bound for current instance and skip if it is unsolvable or no bound is known
-        bound = optimal_plans.get_optimal_plan_cost(instance.domain, instance.problem)
-        if bound is None:
-            continue
+for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
+    # Get upper bound for current instance and skip if it is unsolvable or no bound is known
+    bound = optimal_plans.get_optimal_plan_cost(instance.domain, instance.problem)
+    if bound is None:
+        continue
 
-        bound = int(bound * QUALITY)
+    bound = int(bound * QUALITY)
 
-        constraints = plan_constraints.get_occurs_constraints(
-            instance.domain, instance.problem, fixed_plan_fractions
-        )
-        for fraction_id, fraction in enumerate(fixed_plan_fractions):
+    constraints = plan_constraints.get_occurs_constraints(
+        instance.domain, instance.problem, fixed_plan_fractions
+    )
+    for fraction_id, fraction in enumerate(fixed_plan_fractions):
+        for config_base_name, config in planpilot_configs:
             config_name = f"{config_base_name}-{fraction}"
 
             full_config = config[:]
             full_config += ["--horizon", str(bound)]
-            full_config += ["--add-constraints", constraints[fraction_id]]
 
             run = exp.add_run()
             add_resources(run, instance)
-            set_properties(run, instance, config_name, full_config, [])
+            set_properties(run, instance, config_name, full_config[:], [])
             run.set_property("bound", bound)
+
+            full_config += ["--add-constraints", constraints[fraction_id]]
+
+            # Clean up all the escaped and problematic characters in the constraints
+            # so that they can be added to the report and displayed correctly.
+            cleaned_constraints = re.sub(
+                r"[^. 0-9a-z]", "", constraints[fraction_id], re.IGNORECASE
+            )
+            cleaned_constraints = cleaned_constraints.replace(":-", "")
+            cleaned_constraints = cleaned_constraints.replace('"', "")
+            cleaned_constraints = cleaned_constraints.split("\n")
+            run.set_property("constraints", cleaned_constraints)
 
             cmd = (
                 project.get_bind_cmd()
