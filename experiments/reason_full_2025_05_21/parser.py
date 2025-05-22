@@ -9,8 +9,7 @@ def add_coverage(content, props):
         assert "fasb" in content or "Number of plans:" in content
         if "fasb" not in content:
             props["coverage"] = 1
-        else:
-            "fasb return code: 0\n" in content
+        elif "fasb return code: 0\n" in content:
             props["coverage"] = 1
 
     if "Planalyst time" in content:
@@ -56,6 +55,7 @@ def add_fasb_num_facets(content, props):
                 props["facet_list"] = []
                 if facets_string:
                     props["facet_list"] = facets_string.split(" ")
+                    props["facet_list"] = [x for x in props["facet_list"] if x != ""]
                 break
 
         assert "facet_list" in props
