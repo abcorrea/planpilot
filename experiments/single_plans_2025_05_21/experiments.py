@@ -3,6 +3,7 @@
 import parser
 import project
 
+from cactus_plot import CactusPlot
 from check_relative import OptimalityFilter
 from downward.reports.absolute import AbsoluteReport
 from downward import suites
@@ -137,6 +138,13 @@ exp.add_report(
             plan_optimality_filter.store_attribute,
             plan_optimality_filter.check_consistency,
         ],
+    )
+)
+
+exp.add_report(
+    CactusPlot(
+        attributes=["coverage", "total_time"],
+        filter_algorithm=config_names,
     )
 )
 
