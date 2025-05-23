@@ -23,7 +23,7 @@ def set_properties(run, instance, config_name, config, config_driver_options):
     run.set_property("id", [config_name, instance.domain, instance.problem])
 
 
-MEMORY_LIMIT = 3584  # 3GiB
+MEMORY_LIMIT = 3584  # 3.5GiB
 MEMORY_PADDING = 3872 - MEMORY_LIMIT  # TetralithEnvironment has 3872 MB per cpu
 TIME_LIMIT = 30 * 60
 DRIVER_OPTIONS = [

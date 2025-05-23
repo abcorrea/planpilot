@@ -30,7 +30,7 @@ def set_properties(run, instance, config_name, config, config_driver_options):
 
 QUALITY = 1
 MEMORY_LIMIT = 3584  # 3.5GiB
-MEMORY_PADDING = 3872 - MEMORY_LIMIT  # TetralithEnvironment has 3872 MB per cpu
+MEMORY_PADDING = 3584 - MEMORY_LIMIT  # TetralithEnvironment has 3872 MB per cpu
 TIME_LIMIT = 30 * 60
 DRIVER_OPTIONS = [
     "--overall-time-limit",
@@ -297,7 +297,7 @@ for instance in suites.build_suite(BENCHMARK_DIR, SUITE):
                 "planner",
                 project.get_cmd_with_timeout(cmd, f"{TIME_LIMIT}s"),
                 time_limit=TIME_LIMIT,
-                memory_limit=MEMORY_LIMIT,
+                # memory_limit=MEMORY_LIMIT,
             )
 
             # Remove all outpus.sas files
