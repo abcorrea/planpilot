@@ -24,8 +24,9 @@ def fix_path(path):
 
 def run_fd_translator(domain, instance):
     binary_path = fix_path("translate/translate.py")
+    python_exec = sys.executable  # Uses the currently running Python interpreter
     command = [
-        "python3.12",
+        python_exec,
         binary_path,
         "--keep-unimportant-variables",
         domain,
