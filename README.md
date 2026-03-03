@@ -96,6 +96,6 @@ We utilize for grounding the [Fast Downward](https://www.fast-downward.org/lates
 
 This project redistributes binaries for the following tools to provide core functionality. These tools are included under their original licenses:
 
-- plasp: A PDDL-to-ASP translator developed by Potassco. Distributed under the MIT License. The license text can be found in [bin/LICENSE-plasp.md](bin/LICENSE-plasp.md).
+- plasp: A PDDL-to-ASP translator. Distributed under the MIT License. The license text can be found in [bin/LICENSE-plasp.md](bin/LICENSE-plasp.md).
 
-- fasb: A Facet-based Answer Set Browser developed by Potassco. Distributed under the MIT License. The license text and original documentation can be found in the [bin/fasb-x86_64-unknown-linux-gnu/](bin/fasb-x86_64-unknown-linux-gnu/) directory.
+- fasb: A Facet-based Answer Set Browser. Distributed under the MIT License. The license text and original documentation can be found in the [bin/fasb-x86_64-unknown-linux-gnu/](bin/fasb-x86_64-unknown-linux-gnu/) directory.
