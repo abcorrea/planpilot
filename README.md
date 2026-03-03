@@ -90,11 +90,9 @@ Below is a list of the "essential" commands of `fasb`. We also comment on how th
   listed when using the command `#??`
 - `:q`: quit `fasb`
 
-## Fast Downward Translator
-We utilize for grounding the [Fast Downward](https://www.fast-downward.org/latest/) translator ([files](translate)).
-
-
 ## Third-Party Software
+
+We utilize for grounding the [Fast Downward](https://www.fast-downward.org/latest/) translator ([files](translate)).
 
 This project redistributes binaries for the following tools to provide core functionality. These tools are included under their original licenses:
 
