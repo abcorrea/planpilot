@@ -84,11 +84,15 @@ Below is a list of the "essential" commands of `fasb`. We also comment on how th
 - `#?`: count the number of atomic facets (meaningful operators)
 - `#!!`: query for each facet how much its activation decreases the number of answer sets, and the remaining number of answer sets
 - `#??`: query for each facet how much its activation decreases the number of facets, and the remaining number of facets
+- `|= %`: display all implied/entailed atoms, i.e., landmarks given the current navigation route and plan horizon
+- `|= %%`: display all impossible atoms with respect to the current navigation route and plan horizon
 - `+ FACET`: activate the facet `FACET`. Use the same string for `FACET` as
   listed when using the command `#??`.
 - `- FACET`: deactivate the facet `FACET`. Use the same string for `FACET` as
   listed when using the command `#??`
 - `:q`: quit `fasb`
+
+See [here](https://github.com/drwadu/fasb/blob/main/src/config.rs) for more commands.
 
 ## Third-Party Software
 
